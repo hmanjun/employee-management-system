@@ -45,9 +45,20 @@ const routeAction = async (action) => {
         case "add a department":
             await addDepartment()
             break
+        case "add a role":
+            await getColumn("name","department")
+            break
 
     }
     if(!exit) promptAction()
+}
+
+const getColumn = (column, table) => {
+    return new Promise(resolve => {
+        db.query(`SELECT ${table}.${column}, ${table}.id FROM ${table}`, (err, result) => {
+            resolve(result)
+        })
+    })
 }
 
 const addDepartment = () => {
