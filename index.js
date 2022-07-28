@@ -68,7 +68,7 @@ const addRole = () => {
             .prompt([
                 {
                     type: "input",
-                    name: "name",
+                    name: "title",
                     message: "What is the name of the role?"
                 },
                 {
@@ -84,8 +84,17 @@ const addRole = () => {
                 }
             ])
             .then((response => {
-                console.log(response)
-                resolve("resolve")
+                const {title,salary,department} = response
+                let id
+                depts.forEach((elem) => {
+                    if(elem.name === department) id = elem.id
+                })
+                
+                db.query(`INSERT INTO role (title, salary, department_id)
+                VALUES (?,?,?)`,[title,salary,id],(err,result) => {
+                    console.log(`New role '${title}' added to database`)
+                    resolve("resolve")
+                })
             }))
     })
 }
