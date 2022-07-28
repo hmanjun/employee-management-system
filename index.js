@@ -42,9 +42,34 @@ const routeAction = async (action) => {
         case "view all employees":
             await viewEmployees()
             break
+        case "add a department":
+            await addDepartment()
+            break
 
     }
     if(!exit) promptAction()
+}
+
+const addDepartment = () => {
+    return new Promise(resolve => {
+        inquirer
+            .prompt([
+                {
+                  type: "input",
+                  name: "name",
+                  message: "What is the name of the department?"  
+                }
+            ])
+            .then(response => {
+                const {name} = response
+                const formattedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+                db.query(`INSERT INTO department (name)
+                VALUES (?)`,formattedName,(err,result) => {
+                    console.log(`Department ${name.toLowerCase()} added`)
+                    resolve("resolve")
+                })
+            })
+    })
 }
 
 const viewEmployees = () => {
