@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/hmanjun/employee-management-system/issues"
   },
-  "homepage": "https://github.com/hmanjun/employee-management-system#readme"
+  "homepage": "https://github.com/hmanjun/employee-management-system#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.4",
+    "mysql2": "^2.3.3"
+  }
 }
