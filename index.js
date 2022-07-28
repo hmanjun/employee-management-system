@@ -39,13 +39,22 @@ const routeAction = async (action) => {
         case "view all roles":
             await viewRoles()
             break
+        case "view all employees":
+
     }
     if(!exit) promptAction()
 }
 
+const viewEmployees = () => {
+    return new Promise(resolve => {
+        db.query(`SELECT * FROM employee JOIN depart`)
+    })
+}
+
 const viewRoles = () => {
     return new Promise(resolve => {
-        db.query(`SELECT * FROM role JOIN department on role.department_id = department.id`, (err,result) => {
+        //LEFT JOIN department on role.department_id = department
+        db.query(`SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department on role.department_id = department.id`, (err,result) => {
             console.log('\n')
             err ? console.log(err) : console.table(result)
             console.log('\n')
