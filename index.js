@@ -46,7 +46,7 @@ const routeAction = async (action) => {
             await addDepartment()
             break
         case "add a role":
-            await getColumn("name","department")
+            await addRole()
             break
 
     }
@@ -58,6 +58,35 @@ const getColumn = (column, table) => {
         db.query(`SELECT ${table}.${column}, ${table}.id FROM ${table}`, (err, result) => {
             resolve(result)
         })
+    })
+}
+
+const addRole = () => {
+    return new Promise(async resolve => {
+        const depts = await getColumn("name", "department")
+        inquirer
+            .prompt([
+                {
+                    type: "input",
+                    name: "name",
+                    message: "What is the name of the role?"
+                },
+                {
+                    type: "number",
+                    name: "salary",
+                    message: "What is the salary for this role?"
+                },
+                {
+                    type: "list",
+                    name: "department",
+                    message: "Which department does this role belong to?",
+                    choices: depts
+                }
+            ])
+            .then((response => {
+                console.log(response)
+                resolve("resolve")
+            }))
     })
 }
 
