@@ -36,14 +36,30 @@ const routeAction = async (action) => {
         case "view all departments":
             await viewDepartments()
             break
+        case "view all roles":
+            await viewRoles()
+            break
     }
     if(!exit) promptAction()
+}
+
+const viewRoles = () => {
+    return new Promise(resolve => {
+        db.query(`SELECT * FROM role JOIN department on role.department_id = department.id`, (err,result) => {
+            console.log('\n')
+            err ? console.log(err) : console.table(result)
+            console.log('\n')
+            resolve("resolved")
+        })
+    })
 }
 
 const viewDepartments = () => {
     return new Promise(resolve => {
         db.query(`SELECT * FROM department`, (err,result) => {
+            console.log('\n')
             err ? console.log(err) : console.table(result)
+            console.log('\n')
             resolve("resolved")
         })
     })
