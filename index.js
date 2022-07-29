@@ -1,8 +1,9 @@
 const inquirer = require('inquirer')
 const mysql = require('mysql2')
 const cTable = require('console.table')
-require('dotenv').config()
+require('dotenv').config() //Package to hide credentials
 
+//Connect to db
 const db = mysql.createConnection(
     {
         host: "localhost",
@@ -13,6 +14,7 @@ const db = mysql.createConnection(
     console.log(`Connected to ${process.env.database} database`)
 )
 
+//Ask for what action to take
 const promptAction = () => {
     inquirer.prompt([
         {
@@ -27,6 +29,7 @@ const promptAction = () => {
         })
 }
 
+//Depending on what action chosen, follow up with proper prompt
 const routeAction = async (action) => {
     let exit = false
     switch(action){
@@ -59,6 +62,7 @@ const routeAction = async (action) => {
     else process.exit()
 }
 
+//Helper function to extract sql data. Creates a array of objects with keys specified and id
 const getColumn = (column, table) => {
     return new Promise(resolve => {
         db.query(`SELECT ${table}.${column}, ${table}.id FROM ${table}`, (err, result) => {
@@ -67,8 +71,10 @@ const getColumn = (column, table) => {
     })
 }
 
+//Select from pre-existing employees and input what role to update to
 const updateEmployee = () => {
     return new Promise(async resolve => {
+        //Get list of the roles and employees already in db
         const roles = []
         const tempHolder = await getColumn("title","role")
         tempHolder.forEach((elem) => {
@@ -80,6 +86,7 @@ const updateEmployee = () => {
         e_first.forEach((elem,index) => {
             employees.push({"name": `${elem.first_name} ${e_last[index].last_name}`, "id" : elem.id}) 
         })
+        //Prompt for user data
         inquirer
             .prompt([
                 {
@@ -99,6 +106,7 @@ const updateEmployee = () => {
                 const {name, role} = response
                 let rId
                 let eId
+                //Convert user input for emplyee and role to corresponding id
                 roles.forEach((elem) => {
                     if(elem.name === role) rId = elem.id
                 })
@@ -106,6 +114,7 @@ const updateEmployee = () => {
                     if(elem.name === name) eId = elem.id
                     if(name === "None") eId = null
                 })
+                //Run SQL code to update db
                 db.query(`UPDATE employee SET role_id = ? WHERE id = ?`, [rId,eId],(err,result) =>{
                     err ? console.log(err) : console.log(`Employee ${name} has been updated.`)
                     resolve("resolve")
@@ -114,8 +123,10 @@ const updateEmployee = () => {
     })
 }
 
+//Add employee function
 const addEmployee = () => {
     return new Promise(async resolve => {
+        //Get all pre-existing roles and employees to display in inquirer prompt
         const roles = []
         const tempHolder = await getColumn("title","role")
         tempHolder.forEach((elem) => {
@@ -156,6 +167,7 @@ const addEmployee = () => {
                 const {first_name, last_name, role, manager} = response
                 let rId
                 let mId
+                //Convert user inputs to get corresponding id
                 roles.forEach((elem) => {
                     if(elem.name === role) rId = elem.id
                 })
@@ -163,6 +175,7 @@ const addEmployee = () => {
                     if(elem.name === manager) mId = elem.id
                     if(manager === "None") mId = null
                 })
+                //Run SQL command to add new employee to db
                 db.query(`INSERT INTO employee (first_name,last_name,role_id,manager_id)
                 VALUES (?,?,?,?)`,[first_name,last_name,rId,mId], (err,result) => {
                     err ? console.log(err) : console.log(`Employee '${first_name} ${last_name}' was added to the database`)
@@ -172,8 +185,10 @@ const addEmployee = () => {
     })
 }
 
+//Add new role
 const addRole = () => {
     return new Promise(async resolve => {
+        //Get pre-existing department names
         const depts = await getColumn("name", "department")
         inquirer
             .prompt([
@@ -197,6 +212,7 @@ const addRole = () => {
             .then((response => {
                 const {title,salary,department} = response
                 let id
+                //Convert input department back to id
                 depts.forEach((elem) => {
                     if(elem.name === department) id = elem.id
                 })
@@ -210,6 +226,7 @@ const addRole = () => {
     })
 }
 
+//Add new department
 const addDepartment = () => {
     return new Promise(resolve => {
         inquirer
@@ -223,6 +240,7 @@ const addDepartment = () => {
             .then(response => {
                 const {name} = response
                 const formattedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+                //SQL code to insert new department into db
                 db.query(`INSERT INTO department (name)
                 VALUES (?)`,formattedName,(err,result) => {
                     console.log(`Department ${name.toLowerCase()} added`)
@@ -232,8 +250,10 @@ const addDepartment = () => {
     })
 }
 
+/*Display table of all employees */
 const viewEmployees = () => {
     return new Promise(resolve => {
+        //SQL command to select specific headers, connect table based on id, then export table and view in console
         db.query(`
         SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name," ",m.last_name) AS manager
         FROM employee 
@@ -248,9 +268,10 @@ const viewEmployees = () => {
     })
 }
 
+/*Display table of all roles*/
 const viewRoles = () => {
     return new Promise(resolve => {
-        //LEFT JOIN department on role.department_id = department
+        //SQL command to select specific headers, connect table based on id, then export table and view in console
         db.query(`SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department on role.department_id = department.id`, (err,result) => {
             console.log('\n')
             err ? console.log(err) : console.table(result)
@@ -259,9 +280,10 @@ const viewRoles = () => {
         })
     })
 }
-
+/*Display table of all departments*/
 const viewDepartments = () => {
     return new Promise(resolve => {
+        //View all columns in department table
         db.query(`SELECT * FROM department`, (err,result) => {
             console.log('\n')
             err ? console.log(err) : console.table(result)

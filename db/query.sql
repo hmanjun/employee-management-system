@@ -1,3 +1,6 @@
+/*Test query comands*/
+
+/*Link tables to display all employees*/
 use company_db;
 SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name," ",m.last_name) AS manager
 FROM employee 

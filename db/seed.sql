@@ -1,4 +1,6 @@
 USE company_db;
+/*Add seed data, sample department, roles, employee*/
+
 INSERT INTO department(name)
 VALUES ("Engineering"),
        ("Finance"),
