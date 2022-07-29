@@ -48,6 +48,9 @@ const routeAction = async (action) => {
         case "add a role":
             await addRole()
             break
+        case "add an employee":
+            await addEmployee()
+            break
 
     }
     if(!exit) promptAction()
@@ -58,6 +61,20 @@ const getColumn = (column, table) => {
         db.query(`SELECT ${table}.${column}, ${table}.id FROM ${table}`, (err, result) => {
             resolve(result)
         })
+    })
+}
+
+const addEmployee = () => {
+    return new Promise(async resolve => {
+        const roles = await getColumn("title","role")
+        const m_first = await getColumn("first_name","employee")
+        const m_last = await getColumn("last_name","employee")
+        let managers = []
+        m_first.forEach((elem,index) => {
+            managers.push({"name": `${elem.first_name} ${m_last[index].last_name}`, "id" : elem.id}) 
+        })
+        console.log(managers)
+        resolve("resolve")
     })
 }
 
